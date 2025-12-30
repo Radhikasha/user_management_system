@@ -2,11 +2,11 @@
   "name": "user-management-system",
   "version": "1.0.0",
   "description": "A modern user management system with React and Node.js",
-  "main": "backend/server.js",
+  "main": "backend/src/index.js",
   "scripts": {
-    "start": "node backend/server.js",
+    "start": "node backend/src/index.js",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "node backend/server.js",
+    "server": "node backend/src/index.js",
     "client": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
     "heroku-postbuild": "cd frontend && npm install && npm run build"
