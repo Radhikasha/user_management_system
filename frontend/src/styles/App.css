@@ -1,11 +1,11 @@
+/* Font imports - @import must come first */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 /* Main App Styles */
 .app {
   min-height: 100vh;
   background-color: #f9fafb;
 }
-
-/* Font imports */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* Apply Inter font to all elements */
 * {
