@@ -1,51 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, User, Shield, Settings, Calendar, Clock } from 'lucide-react';
-import axios from 'axios';
+import { Calendar, Activity, Clock } from 'lucide-react';
 import '../styles/ActivityLog.css';
 
 const ActivityLog = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState({
     days: '7',
-    action: '',
-    user: ''
+    action: 'all',
+    user: 'all'
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchActivities = async (page = 1) => {
+  useEffect(() => {
+    fetchActivities();
+  }, [filters, currentPage]);
+
+  const fetchActivities = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: '20',
-        days: filters.days,
-        ...(filters.action && { action: filters.action }),
-        ...(filters.user && { user: filters.user })
-      });
-
-      const response = await axios.get(`http://localhost:5000/api/activity?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      setActivities(response.data.data);
-      setTotalPages(response.data.pagination?.pages || 1);
-      setCurrentPage(page);
+      const response = await fetch(`/api/activities?page=${currentPage}&limit=20&days=${filters.days}&action=${filters.action}&user=${filters.user}`);
+      if (!response.ok) throw new Error('Failed to fetch activities');
+      const data = await response.json();
+      setActivities(data.activities || []);
+      setTotalPages(data.totalPages || 1);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch activities');
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchActivities();
-  }, [filters]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -53,29 +39,17 @@ const ActivityLog = () => {
   };
 
   const handlePageChange = (page) => {
-    fetchActivities(page);
+    setCurrentPage(page);
   };
 
   const getActivityIcon = (action) => {
     switch (action) {
       case 'login':
-        return <User className="w-4 h-4 activity-icon green" />;
+        return <Activity className="w-4 h-4" />;
       case 'logout':
-        return <User className="w-4 h-4 activity-icon gray" />;
-      case 'create_user':
-        return <Settings className="w-4 h-4 activity-icon blue" />;
-      case 'update_user':
-        return <Settings className="w-4 h-4 activity-icon yellow" />;
-      case 'delete_user':
-        return <Settings className="w-4 h-4 activity-icon red" />;
-      case 'activate_user':
-        return <Shield className="w-4 h-4 activity-icon green" />;
-      case 'deactivate_user':
-        return <Shield className="w-4 h-4 activity-icon red" />;
-      case 'change_password':
-        return <Shield className="w-4 h-4 activity-icon orange" />;
+        return <Activity className="w-4 h-4" />;
       default:
-        return <Activity className="w-4 h-4 activity-icon gray" />;
+        return <Activity className="w-4 h-4" />;
     }
   };
 
@@ -85,18 +59,6 @@ const ActivityLog = () => {
         return 'login';
       case 'logout':
         return 'logout';
-      case 'create_user':
-        return 'create_user';
-      case 'update_user':
-        return 'update_user';
-      case 'delete_user':
-        return 'delete_user';
-      case 'activate_user':
-        return 'activate_user';
-      case 'deactivate_user':
-        return 'deactivate_user';
-      case 'change_password':
-        return 'change_password';
       default:
         return 'logout';
     }
@@ -135,40 +97,8 @@ const ActivityLog = () => {
               <option value="90">Last 3 months</option>
             </select>
           </div>
-          <div className="filter-group">
-            <Activity className="filter-icon" />
-            <select 
-              value={filters.action}
-              onChange={(e) => handleFilterChange('action', e.target.value)}
-              className="filter-select"
-            >
-              <option value="">All Activities</option>
-              <option value="login">Login/Logout</option>
-              <option value="create_user">User Creation</option>
-              <option value="update_user">User Updates</option>
-              <option value="delete_user">User Deletion</option>
-              <option value="change_password">Security</option>
-            </select>
-          </div>
-          <div className="filter-group">
-            <User className="filter-icon" />
-            <input
-              type="text"
-              placeholder="Filter by user..."
-              value={filters.user}
-              onChange={(e) => handleFilterChange('user', e.target.value)}
-              className="filter-input"
-            />
-          </div>
         </div>
       </div>
-
-      {/* Error Message */}
-      {error && (
-        <div className="error-message">
-          {error}
-        </div>
-      )}
 
       {/* Activity List */}
       <div className="activity-list">
@@ -222,50 +152,49 @@ const ActivityLog = () => {
             ))
           )}
         </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="pagination-section">
-            <div className="pagination-info">
-              <p>
-                Showing <span className="font-medium">{(currentPage - 1) * 20 + 1}</span> to{' '}
-                <span className="font-medium">{Math.min(currentPage * 20, (currentPage - 1) * 20 + activities.length)}</span> of{' '}
-                <span className="font-medium">{totalPages * 20}</span> results
-              </p>
-              </div>
-              <div className="pagination-controls">
-                <button
-                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  className="pagination-btn first"
-                >
-                  Previous
-                </button>
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const page = currentPage <= 3 ? i + 1 : currentPage + i - 2;
-                  if (page > totalPages) return null;
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
-                <button
-                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages}
-                  className="pagination-btn last"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="pagination-section">
+          <div className="pagination-info">
+            <p>
+              Showing <span className="font-medium">{(currentPage - 1) * 20 + 1}</span> to{' '}
+              <span className="font-medium">{Math.min(currentPage * 20, (currentPage - 1) * 20 + activities.length)}</span> of{' '}
+              <span className="font-medium">{totalPages * 20}</span> results
+            </p>
+          </div>
+          <div className="pagination-controls">
+            <button
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="pagination-btn first"
+            >
+              Previous
+            </button>
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              const page = currentPage <= 3 ? i + 1 : currentPage + i - 2;
+              if (page > totalPages) return null;
+              return (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+                >
+                  {page}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="pagination-btn last"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
