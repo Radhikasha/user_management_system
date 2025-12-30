@@ -9,7 +9,7 @@
     "server": "node backend/src/index.js",
     "client": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
-    "build-frontend": "cd frontend && npm install && npm run build && cd .. && npm install",
+    "build-frontend": "cd frontend && npm ci && npm run build && cd .. && npm install",
     "heroku-postbuild": "cd frontend && npm install && npm run build"
   },
   "keywords": [
