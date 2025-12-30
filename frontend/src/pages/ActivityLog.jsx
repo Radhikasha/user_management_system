@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Activity, Clock } from 'lucide-react';
 import '../styles/ActivityLog.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const ActivityLog = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,11 +23,16 @@ const ActivityLog = () => {
   const fetchActivities = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/activities?page=${currentPage}&limit=20&days=${filters.days}&action=${filters.action}&user=${filters.user}`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/activity?page=${currentPage}&limit=20&days=${filters.days}&action=${filters.action}&user=${filters.user}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) throw new Error('Failed to fetch activities');
       const data = await response.json();
-      setActivities(data.activities || []);
-      setTotalPages(data.totalPages || 1);
+      setActivities(data.data || []);
+      setTotalPages(data.pagination?.pages || 1);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -70,6 +77,15 @@ const ActivityLog = () => {
 
   if (loading && currentPage === 1) {
     return <div className="loading">Loading activities...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="error-state">
+        <p>Error loading activities: {error}</p>
+        <button onClick={fetchActivities}>Retry</button>
+      </div>
+    );
   }
 
   return (

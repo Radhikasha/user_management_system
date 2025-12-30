@@ -40,11 +40,11 @@ const getActivityLogs = async (req, res, next) => {
     // Build filter
     const filter = {};
     
-    if (req.query.user) {
+    if (req.query.user && req.query.user !== 'all') {
       filter.user = req.query.user;
     }
     
-    if (req.query.action) {
+    if (req.query.action && req.query.action !== 'all') {
       filter.action = req.query.action;
     }
     

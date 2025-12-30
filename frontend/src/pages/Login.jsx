@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -14,6 +14,7 @@ const schema = yup.object().shape({
 
 const Login = () => {
   const { login, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -36,7 +37,14 @@ const Login = () => {
     
     const result = await login(data.email, data.password);
     
-    if (!result.success) {
+    if (result.success) {
+      // Redirect based on user role
+      if (result.user?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
+    } else {
       setError(result.error);
     }
     

@@ -5,6 +5,8 @@ import { Users, UserCheck, Shield, Activity, TrendingUp, Calendar, Filter, Searc
 import axios from 'axios';
 import '../styles/Dashboard.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -37,7 +39,7 @@ const Dashboard = () => {
       try {
         setLoadingStats(true);
         setStatsError('');
-        const response = await axios.get('http://localhost:5000/api/users/stats', {
+        const response = await axios.get(`${API_URL}/api/users/stats`, {
           signal: controller.signal
         });
         setStats(response.data.data);
@@ -135,7 +137,7 @@ const Dashboard = () => {
     setRefreshing(true);
     if (user?.role === 'admin') {
       try {
-        const response = await axios.get('http://localhost:5000/api/users/stats');
+        const response = await axios.get(`${API_URL}/api/users/stats`);
         setStats(response.data.data);
       } catch (error) {
         console.error('Failed to refresh stats:', error);

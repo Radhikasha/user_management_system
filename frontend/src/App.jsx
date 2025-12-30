@@ -28,6 +28,13 @@ function App() {
                 </Layout>
               </ProtectedRoute>
             } />
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRole="admin">
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            } />
             <Route path="/users" element={
               <ProtectedRoute requiredRole="admin">
                 <Layout>

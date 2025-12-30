@@ -21,7 +21,6 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [role, setRole] = useState('user'); // Default role is 'user'
 
   const {
     register,
@@ -29,6 +28,9 @@ const Register = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
+    defaultValues: {
+      role: 'user' // Default role is 'user'
+    }
   });
 
   if (isAuthenticated) {
@@ -57,23 +59,47 @@ const Register = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-              <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-              </svg>
+      <div className="auth-layout">
+        <div className="auth-container">
+          <div className="glass-card">
+            <div className="text-center" style={{ padding: '2rem' }}>
+              <div className="success-icon" style={{
+                margin: '0 auto 1.5rem',
+                width: '4rem',
+                height: '4rem',
+                borderRadius: '50%',
+                background: 'rgba(34, 197, 94, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <svg style={{ width: '2rem', height: '2rem', color: '#22c55e' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h2 style={{
+                fontSize: '1.5rem',
+                fontWeight: '600',
+                color: 'white',
+                marginBottom: '0.5rem'
+              }}>
+                Registration Successful!
+              </h2>
+              <p style={{
+                fontSize: '0.875rem',
+                color: 'rgba(255, 255, 255, 0.7)',
+                marginBottom: '1.5rem'
+              }}>
+                Your account has been created successfully. Please{' '}
+                <Link to="/login" style={{
+                  color: '#60a5fa',
+                  textDecoration: 'none',
+                  fontWeight: '500'
+                }}>
+                  sign in
+                </Link>
+              </p>
             </div>
-            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-              Registration Successful!
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Your account has been created successfully. Please{' '}
-              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-                sign in
-              </Link>
-            </p>
           </div>
         </div>
       </div>
@@ -237,8 +263,6 @@ const Register = () => {
                   <input
                     type="radio"
                     value="user"
-                    checked={role === 'user'}
-                    onChange={() => setRole('user')}
                     style={{
                       width: '1rem',
                       height: '1rem',
@@ -258,8 +282,6 @@ const Register = () => {
                   <input
                     type="radio"
                     value="admin"
-                    checked={role === 'admin'}
-                    onChange={() => setRole('admin')}
                     style={{
                       width: '1rem',
                       height: '1rem',
