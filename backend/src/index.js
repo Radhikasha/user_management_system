@@ -43,14 +43,14 @@ app.get('/api/health', (req, res) => {
 });
 
 // Serve static frontend files
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+app.use(express.static(path.join(__dirname, '../../frontend/dist')));
 
 // Serve frontend for all non-API routes (catch-all)
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
 });
 
 // Error handling middleware
